@@ -1,0 +1,745 @@
+\documentclass[12pt,a4paper]{article}
+
+% ---------- Paquetes ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage{times}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning,calc}
+\usepackage[authoryear,round]{natbib}
+\usepackage{hyperref}
+\usepackage{url}
+
+\onehalfspacing
+\setlength{\parindent}{1.27cm}
+\hypersetup{colorlinks=true, linkcolor=black, urlcolor=blue, citecolor=black}
+
+% ---------- Estilo de código ----------
+% Tildes y signos del español dentro de los bloques de código
+\lstset{literate=
+  {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+  {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+  {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1
+  {¿}{{\textquestiondown}}1 {¡}{{\textexclamdown}}1
+}
+
+\lstdefinestyle{consola}{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{gray!10},
+  frame=single,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false
+}
+
+\lstdefinelanguage{Dart}{
+  morekeywords={abstract,as,assert,async,await,break,case,catch,class,const,
+    continue,default,do,else,enum,extends,false,final,for,get,if,import,in,is,
+    late,new,null,on,required,return,set,static,super,switch,this,throw,true,
+    try,var,void,while,with,double,int,bool,String,List,Map},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinestyle{dart}{
+  style=consola,
+  language=Dart,
+  keywordstyle=\color{blue!60!black}\bfseries,
+  commentstyle=\color{green!40!black}\itshape,
+  stringstyle=\color{orange!70!black}
+}
+
+\lstset{style=consola}
+\renewcommand{\lstlistingname}{Código}
+
+% ---------- Figuras ----------
+% \figura{ruta}{descripcion}: inserta la imagen si existe en el proyecto;
+% si no, muestra un recuadro que indica qué captura colocar.
+\newcommand{\marcador}[1]{%
+  \fbox{\parbox[c][6cm][c]{0.85\textwidth}{\centering\small\textit{Insertar captura: #1}}}%
+}
+\newcommand{\figura}[2]{%
+  \IfFileExists{#1}{\includegraphics[width=0.85\textwidth,height=0.4\textheight,keepaspectratio]{#1}}{\marcador{#2}}%
+}
+
+\captionsetup{labelfont=bf, labelsep=period, justification=centering}
+\addto\captionsspanish{\renewcommand{\figurename}{Figura}}
+
+% ---------- Diagrama de flujo ----------
+\newcommand{\var}[1]{\textit{#1}}
+\tikzset{
+  inicio/.style={ellipse, draw, fill=gray!15, minimum width=2.4cm, minimum height=0.8cm, font=\small},
+  proceso/.style={rectangle, draw, text width=4.4cm, align=center, minimum height=0.8cm, font=\small},
+  datos/.style={trapezium, trapezium left angle=70, trapezium right angle=110,
+    trapezium stretches body, draw, text width=4cm, align=center, minimum height=0.8cm, font=\small},
+  decision/.style={diamond, draw, aspect=2.5, text width=2.6cm, align=center, inner sep=0pt, font=\small},
+  flecha/.style={-{Stealth[length=2mm]}, thick}
+}
+
+\begin{document}
+
+% ---------- Portada ----------
+\begin{titlepage}
+    \centering
+    \vfill
+    \includegraphics[width=0.7\textwidth]{logo-espe.png}\par
+    \vspace{0.8cm}
+    {\Large \bfseries Universidad de las Fuerzas Armadas ESPE \par}
+    \vspace{0.25cm}
+    {\large Sede Sangolquí \par}
+    \vspace{0.6cm}
+    {\large \textbf{Carrera:} Ingeniería de Software \par}
+    \vspace{0.25cm}
+    {\large \textbf{NRC:} 36873 \par}
+    \vspace{0.6cm}
+    {\Large \bfseries Tarea 2.1: Resolución de problemas -- Creación y ejecución de pantallas (Activity) en Flutter para los ejercicios 6 al 10 \par}
+    \vspace{0.6cm}
+    {\large \textbf{Integrantes:} \par}
+    \vspace{0.2cm}
+    {\large
+    Marcelo Acuña \par
+    Abner Arboleda \par
+    Christian Bonifaz \par
+    Esteban Santos \par
+    }
+    \vspace{0.5cm}
+    {\large \textbf{Materia:} Desarrollo de Aplicaciones Móviles \par}
+    \vspace{0.8cm}
+    {\large \textbf{Docente:} Ing. Doris Chicaiza .Mgtr\par}
+    \vspace{0.4cm}
+    {\large Sangolquí, 13 de octubre de 2026 \par}
+    \vfill
+\end{titlepage}
+\tableofcontents
+\newpage
+
+% ---------- 1. Introducción ----------
+\section{Introducción}
+
+En Android, cada pantalla con la que interactúa el usuario se asocia tradicionalmente a una \textit{Activity}. Flutter adopta un enfoque distinto: la aplicación se ejecuta dentro de una única \texttt{MainActivity} que aloja el motor de Flutter, y cada pantalla se construye como un \textit{widget} al que se llega mediante el sistema de navegación y rutas del \textit{framework} \citep{flutterdocs, flutternav}. Entender esta diferencia es necesario para crear aplicaciones con varias pantallas, pasar de una a otra y regresar al menú sin perder la organización del código.
+
+Este informe documenta el desarrollo de una aplicación móvil en Flutter y Dart que resuelve los ejercicios 6 al 10 asignados al NRC 36873: impuesto vehicular, cálculo de saldos del banco ``Bandido de peluche'', ahorro anual, juego de adivinar un número e intervalo con sumatoria. La aplicación tiene un menú principal desde el que se accede a cada ejercicio en una pantalla independiente; la lógica de cada problema está separada de la interfaz, y los componentes visuales se organizan siguiendo la metodología \textit{Atomic Design} \citep{frost2016}. El informe describe la estructura del proyecto, el análisis y la implementación de cada ejercicio, y los problemas encontrados con sus soluciones.
+
+% ---------- 2. Objetivos ----------
+\section{Objetivos}
+
+\subsection{Objetivo general}
+
+Desarrollar una aplicación móvil en Flutter y Dart que resuelva los ejercicios 6 al 10 del NRC 36873, mediante un menú principal con rutas nombradas, lógica separada en clases de Dart independientes de la interfaz y componentes visuales organizados con \textit{Atomic Design}, para aplicar la creación, ejecución y navegación entre pantallas de una aplicación móvil.
+
+\subsection{Objetivos específicos}
+
+\begin{itemize}[leftmargin=1.5cm]
+  \item Organizar el proyecto en carpetas que separen la lógica, el tema visual, las rutas y las vistas.
+  \item Implementar la lógica de cada ejercicio en una clase de Dart pura que valide los datos de entrada.
+  \item Construir un menú principal que navegue a cada ejercicio con rutas nombradas y permita regresar.
+  \item Diseñar para cada ejercicio una pantalla con formularios, mensajes de validación y tablas de resultados.
+  \item Ejecutar la aplicación en un emulador Android y comprobar el funcionamiento de cada ejercicio.
+\end{itemize}
+
+% ---------- 3. Trabajos relacionados ----------
+\section{Trabajos relacionados}
+
+\begin{enumerate}[leftmargin=1.5cm]
+  \item \citet{quisaguano2022} comparan Flutter, Xamarin y Android Studio como entornos de desarrollo móvil y describen la preparación de un proyecto Flutter en Windows con Visual Studio Code. Es el antecedente directo del entorno usado en este trabajo, que reutiliza la configuración del laboratorio anterior.
+  \item \citet{fentaw2020} compara React Native y Flutter construyendo la misma aplicación con varias pantallas y consumo de servicios. Su análisis de la estructura de ambas aplicaciones respalda el uso de Flutter para aplicaciones con navegación entre vistas, como la desarrollada aquí.
+  \item \citet{george2025} contrastan Android nativo, Flutter y React Native mediante una aplicación de control de gastos, un dominio de cálculos monetarios similar a los ejercicios 6, 7 y 8. Concluyen que Flutter ofrece buena productividad sin sacrificar la calidad del código.
+  \item \citet{torres2021} desarrollaron con Flutter una aplicación informativa y de apoyo académico para la Universidad Politécnica Salesiana, con un menú principal que da acceso a distintos módulos. Su organización por módulos se asemeja al menú de ejercicios de esta aplicación.
+  \item \citet{safavi2025} evalúa el rendimiento de React Native y Flutter y construye con Flutter un prototipo de gestión de bodega basado en formularios y listas. Sus resultados muestran que la compilación anticipada y el motor de renderizado propio de Flutter mantienen fluidas las interfaces con muchos campos, como los formularios dinámicos de los ejercicios 6 y 7.
+\end{enumerate}
+
+% ---------- 4. Desarrollo ----------
+\section{Desarrollo}
+
+\subsection{Conceptos básicos}
+
+\begin{itemize}[leftmargin=1.5cm]
+  \item \textbf{\textit{Activity}:} componente de Android que representa una pantalla con la que el usuario interactúa. En Flutter existe una sola \texttt{MainActivity}, que aloja el motor de Flutter; las demás pantallas son \textit{widgets}.
+  \item \textbf{\textit{Widget}:} unidad básica de la interfaz en Flutter; toda pantalla, botón o texto es un \textit{widget} \citep{flutterdocs}.
+  \item \textbf{\textit{StatelessWidget} y \textit{StatefulWidget}:} el primero no cambia después de construirse; el segundo guarda un estado y se vuelve a dibujar cuando se llama a \texttt{setState()} \citep{flutterinteractivity}.
+  \item \textbf{\texttt{TextEditingController}:} objeto que lee y modifica el texto de un campo de entrada. Debe liberarse con \texttt{dispose()} cuando la pantalla se destruye.
+  \item \textbf{Rutas nombradas:} cadenas como \texttt{/ej06} asociadas a una pantalla. \texttt{Navigator.pushNamed} abre la pantalla y el botón atrás la cierra \citep{flutternav}.
+  \item \textbf{\textit{Atomic Design}:} metodología que organiza la interfaz en átomos, moléculas, organismos, plantillas y páginas, de lo más simple a lo más complejo \citep{frost2016}.
+  \item \textbf{Valor centinela:} dato especial que indica el fin de una entrada; en el ejercicio 10 es el número 0.
+\end{itemize}
+
+\subsection{Herramientas}
+
+\subsubsection{Android Studio}
+
+Proporciona el SDK de Android, las herramientas de compilación y el emulador en el que se ejecutó la aplicación \citep{androidstudio}. Se usó la misma instalación configurada en el laboratorio 1.1.
+
+\subsubsection{Flutter y Dart}
+
+Se utilizó Flutter 3.47.7 (canal \textit{stable}) con Dart 3.13.5. Flutter aporta los \textit{widgets} de Material Design, el sistema de navegación y el paquete \texttt{flutter\_test}; Dart es el lenguaje en el que se escribieron la lógica y las pantallas \citep{flutterdocs, dartdocs}.
+
+\subsubsection{Visual Studio Code}
+
+Editor principal del proyecto, con las extensiones de Flutter y Dart para autocompletado, ejecución en el emulador y \textit{hot reload} \citep{vscode}.
+
+\subsection{Procedimiento de desarrollo}
+
+\subsubsection*{Paso 1: Crear el proyecto}
+
+Se creó el proyecto con un identificador de organización propio del NRC:
+
+\begin{lstlisting}
+flutter create --org com.nrc36873 tarea2_1
+cd tarea2_1
+\end{lstlisting}
+
+Flutter generó la carpeta \path{android/} con la única \textit{Activity} de la aplicación, ubicada en \path{android/app/src/main/kotlin/com/nrc36873/tarea2_1/MainActivity.kt}. Todo el código propio se escribió dentro de \path{lib/}.
+
+\subsubsection*{Paso 2: Organizar la estructura de carpetas}
+
+El código se dividió para que cada carpeta tenga una sola responsabilidad. La lógica no importa Flutter, por lo que puede probarse sin interfaz; las vistas se agrupan por nivel de \textit{Atomic Design}.
+
+\begin{lstlisting}[caption={Estructura de carpetas del proyecto.}, label={lst:estructura}]
+tarea2_1/
+|-- android/                       Proyecto nativo (MainActivity.kt)
+|-- lib/
+|   |-- main.dart                  Punto de entrada: MaterialApp, tema y rutas
+|   |-- rutas.dart                 Registro de ejercicios y mapa de rutas
+|   |-- logica/                    Clases Dart puras, sin Flutter
+|   |   |-- impuesto_logica.dart       Ejercicio 6
+|   |   |-- banco_logica.dart          Ejercicio 7
+|   |   |-- ahorro_logica.dart         Ejercicio 8
+|   |   |-- adivina_logica.dart        Ejercicio 9
+|   |   `-- intervalo_logica.dart      Ejercicio 10
+|   |-- tema/
+|   |   `-- tema_app.dart          Paleta de colores y ThemeData
+|   `-- views/
+|       |-- atoms/                 Piezas mínimas (tarjeta, ícono, insignia...)
+|       |-- molecules/             Combinaciones de átomos (aviso, fila de dato...)
+|       |-- organisms/             Secciones completas (encabezado, tabla...)
+|       |-- templates/             Estructura común de cada pantalla
+|       `-- pages/                 Menú principal y una pantalla por ejercicio
+|-- test/
+|   |-- logica_test.dart           Pruebas unitarias de la lógica
+|   `-- widget_test.dart           Prueba de navegación del menú
+`-- pubspec.yaml
+\end{lstlisting}
+
+Cada carpeta de \path{views/} tiene un archivo índice (por ejemplo \path{atoms/atoms.dart}) que exporta sus componentes, de modo que una pantalla los importa con una sola línea. La Tabla~\ref{tab:atomic} resume los componentes de cada nivel.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Componentes de la interfaz por nivel de \textit{Atomic Design}.}
+\label{tab:atomic}
+\begin{tabular}{|p{2.4cm}|p{6.2cm}|p{5.8cm}|}
+\hline
+\textbf{Nivel} & \textbf{Componentes} & \textbf{Uso} \\ \hline
+Átomos & \texttt{TarjetaTravo}, \texttt{IconoPastel}, \texttt{InsigniaNumero}, \texttt{EtiquetaEstado}, \texttt{TituloSeccion} & Contenedores, íconos, números de fila, etiquetas Sí/No y títulos. \\ \hline
+Moléculas & \texttt{AvisoTravo}, \texttt{FilaDato}, \texttt{FilaRegla}, \texttt{IndicadorPaso}, \texttt{TarjetaTasa}, \texttt{TotalDestacado} & Mensajes de error, filas de resultados, reglas de cálculo, pasos y totales. \\ \hline
+Organismos & \texttt{EncabezadoTravo}, \texttt{TablaTravo}, \texttt{TarjetaEjercicio} & Encabezado con botón atrás, tabla con desplazamiento horizontal y tarjetas del menú. \\ \hline
+Plantillas & \texttt{PlantillaPantalla} & Encabezado y contenido desplazable comunes a todas las pantallas. \\ \hline
+Páginas & \texttt{MenuPrincipal} y las cinco pantallas de ejercicios & Pantallas completas a las que apuntan las rutas. \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \figura{capturas/estructura_vscode.png}{Visual Studio Code con el explorador de archivos abierto mostrando la carpeta lib/ desplegada (logica/, tema/ y views/ con atoms, molecules, organisms, templates y pages)}
+    \caption{Estructura del proyecto en Visual Studio Code.}
+    \label{fig:estructura}
+\end{figure}
+
+\subsubsection*{Paso 3: Definir el tema visual}
+
+En \path{lib/tema/tema_app.dart} se definió la clase \texttt{TravoColores} con la paleta de la aplicación (morado principal, naranja, rosa, turquesa y verde) y la función \texttt{temaTravo()}, que configura Material 3, los botones con forma de píldora y los campos de texto redondeados. Así todas las pantallas comparten el mismo aspecto sin repetir estilos.
+
+\subsubsection*{Paso 4: Registrar las rutas y construir el menú}
+
+En \path{lib/rutas.dart} se creó una lista de registro con los datos de cada ejercicio. El menú y el mapa de rutas se generan a partir de esa lista, por lo que agregar un ejercicio solo requiere agregar una línea.
+
+\begin{lstlisting}[style=dart, caption={Registro de ejercicios y rutas nombradas (fragmento de \texttt{rutas.dart}).}, label={lst:rutas}]
+final List<EjercicioInfo> ejercicios = [
+  EjercicioInfo(id: '6', titulo: 'Impuesto vehicular', descripcion: 'Impuesto por vehículo, por categoría y total', ruta: '/ej06', pantalla: (_) => const ImpuestoPantalla()),
+  EjercicioInfo(id: '7', titulo: 'Banco Bandido de peluche', ..., ruta: '/ej07', ...),
+  EjercicioInfo(id: '8', titulo: 'Ahorro anual', ..., ruta: '/ej08', ...),
+  EjercicioInfo(id: '9', titulo: 'Adivina el número', ..., ruta: '/ej09', ...),
+  EjercicioInfo(id: '10', titulo: 'Intervalo y sumatoria', ..., ruta: '/ej10', ...),
+];
+
+/// Rutas nombradas de la aplicación.
+final Map<String, WidgetBuilder> rutas = {
+  for (final e in ejercicios) e.ruta: e.pantalla,
+};
+\end{lstlisting}
+
+El archivo \path{main.dart} solo crea el \texttt{MaterialApp} con el tema, el menú como pantalla inicial y el mapa de rutas:
+
+\begin{lstlisting}[style=dart, caption={Punto de entrada de la aplicación (\texttt{main.dart}).}, label={lst:main}]
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Ejercicios NRC 36873',
+      theme: temaTravo(),
+      home: const MenuPrincipal(),
+      routes: rutas,
+    );
+  }
+}
+\end{lstlisting}
+
+Cada tarjeta del menú llama a \texttt{Navigator.pushNamed(context, e.ruta)}. El encabezado de las pantallas muestra un botón atrás solo cuando existe una pantalla anterior (\texttt{Navigator.of(context).canPop()}), con lo que se regresa al menú.
+
+\begin{figure}[H]
+    \centering
+    \figura{capturas/menu_principal.png}{Pantalla inicial de la app en el emulador: encabezado morado "Ejercicios NRC 36873", texto "5 disponibles" y las cinco tarjetas de ejercicios (6 al 10) con sus íconos}
+    \caption{Menú principal de la aplicación.}
+    \label{fig:menu}
+\end{figure}
+
+Todas las pantallas de ejercicios siguen el mismo patrón: un \texttt{StatefulWidget} con un \texttt{TextEditingController} por campo, liberado en \texttt{dispose()}; un método por acción (\texttt{generar}, \texttt{calcular}, \texttt{limpiar}) que lee los campos, llama a la clase de lógica y actualiza la vista con \texttt{setState()}; y un botón flotante para limpiar el formulario.
+
+\subsubsection*{Paso 5: Ejercicio 6 -- Impuesto vehicular}
+
+\textbf{Enunciado.} El gerente de una compañía automotriz desea determinar el impuesto que pagará por cada automóvil, el total por cada categoría y el total de todos los vehículos. Los vehículos con clave 1 pagan el 10\,\% de su valor, los de clave 2 el 7\,\% y los de clave 3 el 5\,\%.
+
+\textbf{Análisis.}
+\begin{itemize}[leftmargin=1.5cm]
+  \item \textit{Entradas:} número de vehículos $N$ y, por cada uno, su valor y su clave.
+  \item \textit{Proceso:} $impuesto = valor \times tasa(clave)$; el impuesto se acumula en el total de su clave y en el total general.
+  \item \textit{Salidas:} impuesto por vehículo, total por clave y total general.
+  \item \textit{Validación:} clave distinta de 1, 2 o 3, valor negativo o campo vacío.
+\end{itemize}
+
+\begin{lstlisting}[style=dart, caption={Lógica del ejercicio 6 (\texttt{impuesto\_logica.dart}).}, label={lst:ej6}]
+class ImpuestoLogica {
+  static const Map<int, double> tasas = {1: 0.10, 2: 0.07, 3: 0.05};
+
+  // Acumuladores por clave y total general
+  final Map<int, double> totalPorClave = {1: 0.0, 2: 0.0, 3: 0.0};
+  double totalGeneral = 0.0;
+
+  double impuesto(double valor, int clave) {
+    final tasa = tasas[clave];
+    if (tasa == null) {
+      throw ArgumentError('Clave inválida: $clave (debe ser 1, 2 o 3)');
+    }
+    if (valor < 0) {
+      throw ArgumentError('El valor no puede ser negativo');
+    }
+    return valor * tasa;
+  }
+
+  /// Calcula el impuesto, lo suma a los acumuladores y lo devuelve.
+  double registrar(double valor, int clave) {
+    final imp = impuesto(valor, clave);
+    totalPorClave[clave] = totalPorClave[clave]! + imp;
+    totalGeneral += imp;
+    return imp;
+  }
+}
+\end{lstlisting}
+
+\textbf{Pantalla.} Muestra las tres tasas en tarjetas de color, un campo para $N$ (entre 1 y 50) y el botón \textit{Generar formulario}, que crea una fila con valor y clave por vehículo. Al presionar \textit{Calcular} aparece una tabla con el impuesto de cada vehículo, los totales por clave y el total general. Si una fila tiene datos inválidos, el error se muestra en esa fila y los demás vehículos se siguen calculando.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/ej06_formulario.png}{Ejercicio 6 con N = 4 y el formulario lleno: (100000, clave 1), (50000, clave 2), (200000, clave 3), (80000, clave 1)}\\[2pt]
+        {\small (a) Formulario de vehículos}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/ej06_resultados.png}{Resultados tras pulsar Calcular: tabla con impuestos \$10000.00, \$3500.00, \$10000.00 y \$8000.00; Total clave 1 = \$18000.00, clave 2 = \$3500.00, clave 3 = \$10000.00; Total general = \$31500.00}\\[2pt]
+        {\small (b) Resultados}
+    \end{minipage}
+    \caption{Ejercicio 6: impuesto vehicular.}
+    \label{fig:ej6}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figura{capturas/ej06_error.png}{Ejercicio 6 con un vehículo de clave 4: la fila muestra en rojo "Clave inválida: 4 (debe ser 1, 2 o 3)" y aparece el aviso "1 vehículo(s) con datos inválidos no se sumaron"}
+    \caption{Validación de una clave inválida en el ejercicio 6.}
+    \label{fig:ej6error}
+\end{figure}
+
+\subsubsection*{Paso 6: Ejercicio 7 -- Banco ``Bandido de peluche''}
+
+\textbf{Enunciado.} El banco desea calcular, para cada uno de sus $N$ clientes, el saldo actual, el pago mínimo y el pago para no generar intereses, además del monto ganado por intereses con los clientes morosos. De cada cliente se conoce el saldo anterior, el monto de las compras y el pago depositado en el corte anterior. El pago mínimo es el 15\,\% del saldo actual y el pago para no generar intereses es el 85\,\%; el saldo actual debe incluir el 12\,\% de intereses y \$200 de multa por no haber realizado el pago mínimo.
+
+\textbf{Supuestos.} El enunciado no indica cuál era el pago mínimo del corte anterior, por lo que se adoptaron los siguientes criterios, documentados también en el código:
+\begin{enumerate}[leftmargin=1.5cm]
+  \item El pago mínimo de referencia es el 15\,\% del saldo anterior.
+  \item Un cliente es moroso si su pago depositado es menor que ese pago mínimo.
+  \item $base = saldoAnterior - pago + compras$.
+  \item Si es moroso: $interes = 0.12 \times base$ y $multa = 200$; si no, ambos son 0.
+  \item $saldoActual = base + interes + multa$.
+  \item Si el cliente pagó más de lo que debía, el saldo queda a favor (negativo) y sus pagos mínimo y sin intereses son 0.
+  \item El total ganado por intereses suma solo el interés de los morosos.
+\end{enumerate}
+
+\textbf{Pseudocódigo.}
+
+\begin{lstlisting}[caption={Pseudocódigo del ejercicio 7.}, label={lst:pseudo7}]
+Algoritmo BancoBandidoDePeluche
+  Constantes
+    TASA_MIN <- 0.15     TASA_SIN <- 0.85
+    TASA_INT <- 0.12     MULTA    <- 200
+  Variables
+    N, i: entero
+    saldoAnt, compras, pago, pmAnt, base, interes, multa: real
+    saldoAct, saldoPagar, pagoMin, pagoSin, totalIntereses: real
+Inicio
+  Leer N
+  totalIntereses <- 0
+  Para i <- 1 hasta N hacer
+    Leer saldoAnt, compras, pago
+    pmAnt <- TASA_MIN * saldoAnt
+    base  <- saldoAnt - pago + compras
+    Si pago < pmAnt entonces
+      interes <- TASA_INT * base
+      multa   <- MULTA
+      totalIntereses <- totalIntereses + interes
+    Sino
+      interes <- 0
+      multa   <- 0
+    FinSi
+    saldoAct <- base + interes + multa
+    Si saldoAct > 0 entonces
+      saldoPagar <- saldoAct
+    Sino
+      saldoPagar <- 0
+    FinSi
+    pagoMin <- TASA_MIN * saldoPagar
+    pagoSin <- TASA_SIN * saldoPagar
+    Escribir "Cliente", i, saldoAct, pagoMin, pagoSin
+  FinPara
+  Escribir "Intereses ganados con morosos:", totalIntereses
+Fin
+\end{lstlisting}
+
+\textbf{Diagrama de flujo.} La Figura~\ref{fig:flujo7} representa el mismo algoritmo.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.55cm]
+  \node[inicio] (ini) {Inicio};
+  \node[datos, below=of ini] (n) {Leer \var{N}};
+  \node[proceso, below=of n] (init) {\var{total} $\leftarrow$ 0;\quad \var{i} $\leftarrow$ 1};
+  \node[decision, below=of init] (c1) {¿\var{i} $\leq$ \var{N}?};
+  \node[datos, below=of c1] (leer) {Leer \var{saldoAnt}, \var{compras}, \var{pago}};
+  \node[proceso, below=of leer] (p1) {\var{pmAnt} $\leftarrow$ 0.15 $\cdot$ \var{saldoAnt}\\ \var{base} $\leftarrow$ \var{saldoAnt} $-$ \var{pago} $+$ \var{compras}};
+  \node[decision, below=of p1] (c2) {¿\var{pago} $<$ \var{pmAnt}?};
+  \node[proceso, text width=3.4cm, right=0.8cm of c2] (mor) {\var{interes} $\leftarrow$ 0.12 $\cdot$ \var{base}\\ \var{multa} $\leftarrow$ 200\\ \var{total} $\leftarrow$ \var{total} $+$ \var{interes}};
+  \node[proceso, text width=2.8cm, left=0.8cm of c2] (nomor) {\var{interes} $\leftarrow$ 0\\ \var{multa} $\leftarrow$ 0};
+  \node[proceso, text width=5.4cm, below=1.4cm of c2] (p2) {\var{saldoAct} $\leftarrow$ \var{base} $+$ \var{interes} $+$ \var{multa}\\ \var{saldoPagar} $\leftarrow$ máx(\var{saldoAct}, 0)\\ \var{pagoMin} $\leftarrow$ 0.15 $\cdot$ \var{saldoPagar}\\ \var{pagoSin} $\leftarrow$ 0.85 $\cdot$ \var{saldoPagar}};
+  \node[datos, below=of p2] (out) {Escribir \var{saldoAct}, \var{pagoMin}, \var{pagoSin}};
+  \node[proceso, text width=2.4cm, below=of out] (inc) {\var{i} $\leftarrow$ \var{i} $+$ 1};
+  \node[datos, text width=2.4cm, right=1.4cm of c1] (tot) {Escribir \var{total}};
+  \node[inicio, below=of tot] (fin) {Fin};
+
+  \draw[flecha] (ini) -- (n);
+  \draw[flecha] (n) -- (init);
+  \draw[flecha] (init) -- (c1);
+  \draw[flecha] (c1) -- node[right] {Sí} (leer);
+  \draw[flecha] (leer) -- (p1);
+  \draw[flecha] (p1) -- (c2);
+  \draw[flecha] (c2) -- node[above] {Sí} (mor);
+  \draw[flecha] (c2) -- node[above] {No} (nomor);
+  \draw[flecha] (mor.south) |- (p2.east);
+  \draw[flecha] (nomor.south) |- (p2.west);
+  \draw[flecha] (p2) -- (out);
+  \draw[flecha] (out) -- (inc);
+  \coordinate[left=0.5cm of nomor.west] (lx);
+  \draw[flecha] (inc.west) -- (inc.west -| lx) |- (c1.west);
+  \draw[flecha] (c1.east) -- node[above] {No} (tot.west);
+  \draw[flecha] (tot) -- (fin);
+\end{tikzpicture}
+\caption{Diagrama de flujo del ejercicio 7.}
+\label{fig:flujo7}
+\end{figure}
+
+\begin{lstlisting}[style=dart, caption={Cálculo de un cliente en el ejercicio 7 (\texttt{banco\_logica.dart}).}, label={lst:ej7}]
+ResultadoCliente calcular(Cliente c) {
+  if (c.saldoAnterior < 0 || c.compras < 0 || c.pagoDepositado < 0) {
+    throw ArgumentError('Los datos del cliente no pueden ser negativos');
+  }
+
+  final pagoMinimoAnterior = tasaPagoMinimo * c.saldoAnterior; // paso 1
+  final moroso = c.pagoDepositado < pagoMinimoAnterior; // paso 2
+  final base = c.saldoAnterior - c.pagoDepositado + c.compras; // paso 3
+  final interes = moroso ? tasaInteres * base : 0.0; // paso 4
+  final multa = moroso ? multaMorosidad : 0.0;
+  final saldoActual = base + interes + multa; // paso 5
+
+  // Si el cliente pagó de más, el saldo queda a favor (negativo) y no debe nada.
+  final saldoAPagar = saldoActual > 0 ? saldoActual : 0.0;
+
+  return ResultadoCliente(
+    saldoActual: saldoActual,
+    pagoMinimo: tasaPagoMinimo * saldoAPagar, // paso 6
+    pagoSinIntereses: tasaSinIntereses * saldoAPagar, // paso 7
+    moroso: moroso,
+    interes: interes,
+    multa: multa,
+  );
+}
+\end{lstlisting}
+
+\textbf{Pantalla.} Presenta las reglas del banco, un campo para $N$ y un formulario por cliente con saldo anterior, monto de compras y pago depositado. La tabla de resultados muestra saldo actual, pago mínimo, pago sin intereses, una etiqueta roja o verde que indica si el cliente es moroso y el interés cobrado; al final se destaca el total de intereses ganados con los morosos.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/ej07_formulario.png}{Ejercicio 7 con N = 2: Cliente 1 (saldo anterior 1000, compras 500, pago 100) y Cliente 2 (saldo anterior 1000, compras 500, pago 200)}\\[2pt]
+        {\small (a) Formulario de clientes}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/ej07_resultados.png}{Resultados: Cliente 1 moroso "Sí" con saldo \$1768.00, pago mínimo \$265.20, sin intereses \$1502.80 e interés \$168.00; Cliente 2 "No" con \$1300.00, \$195.00, \$1105.00 y \$0.00; total de intereses \$168.00}\\[2pt]
+        {\small (b) Resultados}
+    \end{minipage}
+    \caption{Ejercicio 7: banco ``Bandido de peluche''.}
+    \label{fig:ej7}
+\end{figure}
+
+\subsubsection*{Paso 7: Ejercicio 8 -- Ahorro anual}
+
+\textbf{Enunciado.} Determinar cuánto ahorrará una persona en un año si al final de cada mes deposita cantidades variables, y cuánto lleva ahorrado cada mes.
+
+\textbf{Análisis.} Las entradas son los doce depósitos mensuales. En cada mes el saldo acumulado es el saldo anterior más el depósito del mes; las salidas son el saldo acumulado de cada mes y el total del año. No se admiten depósitos negativos.
+
+\begin{lstlisting}[style=dart, caption={Lógica del ejercicio 8 (\texttt{ahorro\_logica.dart}).}, label={lst:ej8}]
+ResultadoAhorro calcular(List<double> depositos) {
+  if (depositos.length != 12) {
+    throw ArgumentError('Se requieren 12 depósitos');
+  }
+  if (depositos.any((d) => d < 0)) {
+    throw ArgumentError('Los depósitos no pueden ser negativos');
+  }
+
+  final acumulados = <double>[];
+  double saldo = 0.0;
+  for (final d in depositos) {
+    saldo += d;
+    acumulados.add(saldo);
+  }
+  return ResultadoAhorro(acumulados, saldo);
+}
+\end{lstlisting}
+
+\textbf{Pantalla.} Contiene doce campos etiquetados con el nombre de cada mes y el botón \textit{Calcular}. El resultado es una tabla con el mes, el depósito y el saldo acumulado, seguida del total ahorrado.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/ej08_formulario.png}{Ejercicio 8 con los doce meses llenos: Enero 100, Febrero 200, Marzo 300 ... Diciembre 1200}\\[2pt]
+        {\small (a) Depósitos mensuales}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/ej08_resultados.png}{Tabla de resultados con saldo acumulado por mes (Enero \$100.00, Febrero \$300.00, Marzo \$600.00 ... Diciembre \$7800.00) y "Total ahorrado \$7800.00"}\\[2pt]
+        {\small (b) Saldo acumulado y total}
+    \end{minipage}
+    \caption{Ejercicio 8: ahorro anual.}
+    \label{fig:ej8}
+\end{figure}
+
+\subsubsection*{Paso 8: Ejercicio 9 -- Adivina el número}
+
+\textbf{Enunciado.} La aplicación genera un número aleatorio del 1 al 100 y el usuario tiene 10 intentos para adivinarlo. Tras cada intento indica si el número secreto es mayor o menor y cuántos intentos quedan. Si el usuario acierta, se informa en cuántos intentos lo logró; si agota los intentos, se muestra el número secreto.
+
+\textbf{Análisis.} El estado del juego (número secreto, intentos usados y si terminó) se guarda en la clase \texttt{AdivinaLogica}. Cada intento devuelve uno de cuatro resultados: \texttt{mayor}, \texttt{menor}, \texttt{acierto} o \texttt{sinIntentos}. Un número fuera del rango 1--100 se rechaza sin consumir intento. El constructor acepta un número secreto fijo para poder probar la lógica.
+
+\begin{lstlisting}[style=dart, caption={Procesamiento de un intento en el ejercicio 9 (\texttt{adivina\_logica.dart}).}, label={lst:ej9}]
+AdivinaLogica({Random? random, int? secreto})
+    : numeroSecreto = secreto ?? (random ?? Random()).nextInt(maximo) + minimo;
+
+int get intentosRestantes => maxIntentos - intentosUsados;
+
+ResultadoIntento intentar(int n) {
+  if (terminado) throw StateError('El juego ya terminó');
+  if (n < minimo || n > maximo) {
+    throw ArgumentError('El número debe estar entre $minimo y $maximo');
+  }
+
+  intentosUsados++;
+  if (n == numeroSecreto) {
+    terminado = true;
+    return ResultadoIntento.acierto;
+  }
+  if (intentosUsados >= maxIntentos) {
+    terminado = true;
+    return ResultadoIntento.sinIntentos;
+  }
+  return n < numeroSecreto ? ResultadoIntento.mayor : ResultadoIntento.menor;
+}
+\end{lstlisting}
+
+\textbf{Pantalla.} Una tarjeta muestra ``Te quedan X intentos''. El campo solo acepta dígitos (máximo tres) y, al presionar \textit{Probar}, aparece la pista en un aviso naranja. Al terminar se muestra un recuadro verde con el número de intentos usados o uno rojo con el número secreto; debajo se listan los números intentados y el botón \textit{Nuevo juego} reinicia la partida.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/ej09_pista.png}{Ejercicio 9 a mitad de partida: aviso naranja "El número es mayor que ..." o "menor que ...", texto "Te quedan X intentos" y los chips con los números ya intentados}\\[2pt]
+        {\small (a) Pista e intentos restantes}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/ej09_acierto.png}{Recuadro verde con trofeo: "¡Acertaste! El número era ... Lo lograste en ... intento(s)."}\\[2pt]
+        {\small (b) Acierto}
+    \end{minipage}
+    \caption{Ejercicio 9: adivina el número.}
+    \label{fig:ej9}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \figura{capturas/ej09_derrota.png}{Ejercicio 9 tras 10 intentos fallidos: recuadro rojo "Se acabaron los intentos. El número secreto era ...", texto "Juego terminado" y los 10 chips de intentos}
+    \caption{Ejercicio 9: fin del juego al agotar los intentos.}
+    \label{fig:ej9derrota}
+\end{figure}
+
+\subsubsection*{Paso 9: Ejercicio 10 -- Intervalo y sumatoria}
+
+\textbf{Enunciado.} Pedir el límite inferior y el superior de un intervalo, volviendo a pedirlos si el inferior es mayor que el superior. Luego se ingresan números hasta introducir 0, y se informa la suma de los números dentro del intervalo abierto, cuántos números están fuera de él y si se introdujo algún número igual a uno de los límites.
+
+\textbf{Análisis.} Un número $x$ está dentro del intervalo abierto si $lo < x < hi$, y fuera si $x < lo$ o $x > hi$. Un número igual a un límite no se suma ni se cuenta como fuera, pero activa el indicador de igualdad. El 0 se usa como valor centinela: termina la entrada y no se cuenta como dato.
+
+\begin{lstlisting}[style=dart, caption={Análisis de los números en el ejercicio 10 (\texttt{intervalo\_logica.dart}).}, label={lst:ej10}]
+ResultadoIntervalo analizar(double lo, double hi, List<double> numeros) {
+  final error = validarLimites(lo, hi);
+  if (error != null) throw ArgumentError(error);
+
+  double suma = 0.0;
+  int fuera = 0;
+  bool igualLimite = false;
+
+  for (final x in numeros) {
+    if (x > lo && x < hi) {
+      suma += x;
+    } else if (x < lo || x > hi) {
+      fuera++;
+    } else {
+      // x == lo o x == hi: no se suma ni cuenta como fuera
+      igualLimite = true;
+    }
+  }
+  return ResultadoIntervalo(suma, fuera, igualLimite);
+}
+\end{lstlisting}
+
+\textbf{Pantalla.} Se organiza en dos pasos numerados. En el paso 1 se ingresan los límites; si el inferior es mayor, aparece un error y el usuario permanece en ese paso. En el paso 2 se agregan los números uno por uno y se muestran como chips; al ingresar 0 aparecen la suma dentro del intervalo, la cantidad de números fuera y el mensaje sobre los límites.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/ej10_error_limites.png}{Ejercicio 10, paso 1, con límite inferior 10 y superior 5: mensaje de error "El límite inferior no puede ser mayor que el superior. Vuelve a ingresarlos."}\\[2pt]
+        {\small (a) Validación de límites}
+    \end{minipage}\hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \figura{capturas/ej10_resultados.png}{Ejercicio 10 con intervalo (5, 10) y números 3, 5, 7, 10, 12, 8 y luego 0: "Suma dentro del intervalo 15.00", "Números fuera del intervalo 2" y "Sí se introdujo un número igual a un límite"}\\[2pt]
+        {\small (b) Resultados}
+    \end{minipage}
+    \caption{Ejercicio 10: intervalo y sumatoria.}
+    \label{fig:ej10}
+\end{figure}
+
+\subsection{Problemas encontrados y soluciones}
+
+\begin{center}
+\small
+\begin{tabular}{|p{3.4cm}|p{5.6cm}|p{5.6cm}|}
+\hline
+\textbf{Problema} & \textbf{Causa} & \textbf{Solución} \\ \hline
+Criterio de morosidad del ejercicio 7 & El enunciado no indica el pago mínimo del corte anterior. & Se tomó el 15\,\% del saldo anterior como referencia y el supuesto se documentó en el código y en este informe. \\ \hline
+Pagos negativos en el ejercicio 7 & Si el pago supera la deuda, el saldo actual queda negativo. & Los pagos mínimo y sin intereses se calculan sobre $\max(saldoActual, 0)$. \\ \hline
+Cantidad variable de campos & Los ejercicios 6 y 7 dependen de $N$, que el usuario define en tiempo de ejecución. & Los controladores se crean con \texttt{List.generate}, se liberan con \texttt{dispose()} al regenerar o salir, y $N$ se limita a 50. \\ \hline
+Un dato inválido detenía todo el cálculo & La lógica lanza \texttt{ArgumentError} ante datos inválidos. & La pantalla captura el error por fila, lo muestra en esa fila y continúa con los demás registros. \\ \hline
+El 0 del ejercicio 10 podía contarse como dato & El 0 marca el fin de la entrada. & Se trata como centinela: dispara el análisis y nunca se agrega a la lista. \\ \hline
+Intentos inválidos en el ejercicio 9 & Un número fuera de 1--100 no debe gastar un intento. & El campo acepta solo dígitos y la lógica rechaza el número antes de incrementar el contador. \\ \hline
+Tablas más anchas que la pantalla & El ejercicio 7 tiene seis columnas de resultados. & El organismo \texttt{TablaTravo} envuelve la tabla en un desplazamiento horizontal. \\ \hline
+\end{tabular}
+\end{center}
+
+% ---------- 5. Conclusiones ----------
+\section{Conclusiones}
+
+\begin{enumerate}[leftmargin=1.5cm]
+  \item En Flutter una sola \texttt{MainActivity} aloja toda la aplicación y cada pantalla es un \textit{widget} al que se llega por una ruta nombrada. Generar el menú y el mapa de rutas desde una misma lista de registro permitió acceder a los cinco ejercicios y regresar al menú sin duplicar código.
+  \item Separar la lógica en clases de Dart sin dependencias de Flutter dejó a cada pantalla la tarea de leer los campos, llamar a la lógica y mostrar los resultados, y concentró en un solo lugar las fórmulas y los supuestos, como el criterio de morosidad del ejercicio 7, lo que facilita revisarlos y modificarlos.
+  \item Organizar la interfaz con \textit{Atomic Design} hizo que las cinco pantallas compartieran tarjetas, avisos, tablas y encabezados, lo que dio un aspecto uniforme a la aplicación y redujo cada página a la composición de componentes ya probados.
+\end{enumerate}
+
+% ---------- 6. Recomendaciones ----------
+\section{Recomendaciones}
+
+\begin{enumerate}[leftmargin=1.5cm]
+  \item Confirmar con el docente los enunciados ambiguos, como el criterio de morosidad del ejercicio 7, antes de implementarlos, y documentar en el código cualquier supuesto adoptado.
+  \item Mantener la lógica de cada ejercicio en su propia clase, separada de la pantalla, para poder corregir una fórmula sin modificar la interfaz y reutilizar los cálculos en otras pantallas.
+  \item Liberar siempre los \texttt{TextEditingController} en \texttt{dispose()}, sobre todo cuando se crean dinámicamente, y limitar la cantidad de campos que el usuario puede generar para evitar consumo innecesario de memoria.
+\end{enumerate}
+
+% ---------- 7. Bibliografía (APA 7) ----------
+\begin{thebibliography}{99}
+\setlength{\itemsep}{0.5em}
+
+\bibitem[Dart Team(s.f.)]{dartdocs}
+Dart Team. (s.f.). \textit{Introduction to Dart}. Google. \url{https://dart.dev/language}
+
+\bibitem[Fentaw(2020)]{fentaw2020}
+Fentaw, A. E. (2020). \textit{Cross platform mobile application development: A comparison study of React Native vs Flutter} [Tesis de maestría, University of Jyväskylä]. JYX. \url{https://urn.fi/URN:NBN:fi:jyu-202006295155}
+
+\bibitem[Flutter Team(s.f.-a)]{flutterdocs}
+Flutter Team. (s.f.-a). \textit{Flutter documentation}. Google. \url{https://docs.flutter.dev}
+
+\bibitem[Flutter Team(s.f.-b)]{flutternav}
+Flutter Team. (s.f.-b). \textit{Navigation and routing}. Google. \url{https://docs.flutter.dev/ui/navigation}
+
+\bibitem[Flutter Team(s.f.-c)]{flutterinteractivity}
+Flutter Team. (s.f.-c). \textit{Adding interactivity to your Flutter app}. Google. \url{https://docs.flutter.dev/ui/interactivity}
+
+\bibitem[Frost(2016)]{frost2016}
+Frost, B. (2016). \textit{Atomic design}. Brad Frost. \url{https://atomicdesign.bradfrost.com}
+
+\bibitem[George et~al.(2025)]{george2025}
+George, K., Kirubanand, V. B., y Sandeep, J. (2025). Cross-platform vs. native mobile development: A comprehensive study using an expense tracker application. En \textit{Proceedings of the 2025 International Conference on Computational Innovations and Sustainable Technologies (ICCIST 2025)}. IEEE.
+
+\bibitem[Google(s.f.)]{androidstudio}
+Google. (s.f.). \textit{Android Studio}. Android Developers. \url{https://developer.android.com/studio}
+
+\bibitem[Microsoft(s.f.)]{vscode}
+Microsoft. (s.f.). \textit{Visual Studio Code}. \url{https://code.visualstudio.com}
+
+\bibitem[Quisaguano et~al.(2022)]{quisaguano2022}
+Quisaguano, L. R., Camalle, T. G., y Toca, J. W. (2022). Análisis comparativo de entornos de desarrollo móvil. \textit{Ciencia Latina Revista Científica Multidisciplinar, 6}(4), 4478--4498. \url{https://doi.org/10.37811/cl_rcm.v6i4.2950}
+
+\bibitem[Safavi(2025)]{safavi2025}
+Safavi, S. (2025). \textit{Performance evaluation of cross-platform mobile frameworks: A comparative study of React Native and Flutter} [Tesis, Università degli Studi di Padova]. Padua Thesis Archive. \url{https://hdl.handle.net/20.500.12608/87277}
+
+\bibitem[Torres Peña y Andrade Solórzano(2021)]{torres2021}
+Torres Peña, P. A., y Andrade Solórzano, B. A. (2021). \textit{Aplicación móvil informativa y de apoyo académico de la Universidad Politécnica Salesiana} [Trabajo de titulación de grado, Universidad Politécnica Salesiana]. Repositorio Institucional UPS. \url{https://dspace.ups.edu.ec/handle/123456789/21490}
+
+\end{thebibliography}
+
+\end{document}
