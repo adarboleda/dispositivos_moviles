@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'menu/menu_principal.dart';
+import 'views/pages/menu_principal.dart';
 import 'rutas.dart';
+import 'tema/tema_app.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,9 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Ejercicios NRC 36873',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
+      theme: temaTravo(),
       home: const MenuPrincipal(),
       routes: rutas,
     );

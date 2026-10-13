@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import '../logica/calculadora_logica.dart';
+import '../../logica/calculadora_logica.dart';
+import '../atoms/atoms.dart';
+import '../molecules/molecules.dart';
+import '../templates/templates.dart';
 
 class CalculadoraPantalla extends StatefulWidget {
   const CalculadoraPantalla({super.key});
@@ -88,77 +91,50 @@ class _CalculadoraPantallaState extends State<CalculadoraPantalla> {
   /// Diseño
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Calculadora"),
-        backgroundColor: Colors.blue,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: num1,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: "Número 1",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: num2,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: "Número 2",
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              resultado.isEmpty ? "Resultado" : "Resultado: $resultado",
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                ElevatedButton(
-                  onPressed: suma,
-                  child: const Text("Suma"),
-                ),
-                ElevatedButton(
-                  onPressed: resta,
-                  child: const Text("Resta"),
-                ),
-                ElevatedButton(
-                  onPressed: multiplicacion,
-                  child: const Text("Multiplicación"),
-                ),
-                ElevatedButton(
-                  onPressed: division,
-                  child: const Text("División"),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+    return PlantillaPantalla(
+      titulo: 'Calculadora',
+      subtitulo: 'Operaciones básicas con dos números',
       floatingActionButton: FloatingActionButton(
         onPressed: limpiar,
-        backgroundColor: Colors.green,
         tooltip: 'Limpiar',
         child: const Icon(Icons.cleaning_services),
       ),
+      children: [
+        TarjetaTravo(
+          child: Column(
+            children: [
+              TextField(
+                controller: num1,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(labelText: "Número 1"),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: num2,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(labelText: "Número 2"),
+              ),
+            ],
+          ),
+        ),
+        TotalDestacado('Resultado', resultado.isEmpty ? '-' : resultado),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(child: ElevatedButton(onPressed: suma, child: const Text("Suma"))),
+            const SizedBox(width: 10),
+            Expanded(child: ElevatedButton(onPressed: resta, child: const Text("Resta"))),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(child: ElevatedButton(onPressed: multiplicacion, child: const Text("Multiplicación"))),
+            const SizedBox(width: 10),
+            Expanded(child: ElevatedButton(onPressed: division, child: const Text("División"))),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -10,7 +10,9 @@ void main() {
     expect(find.text('Ejercicios NRC 36873'), findsWidgets);
 
     for (final e in ejercicios) {
-      // Ida: tocar la card del ejercicio
+      // Ida: desplazarse hasta la card del ejercicio y tocarla
+      await tester.ensureVisible(find.text(e.titulo));
+      await tester.pumpAndSettle();
       await tester.tap(find.text(e.titulo));
       await tester.pumpAndSettle();
       expect(find.byType(BackButton), findsOneWidget);

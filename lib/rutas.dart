@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'pantallas/impuesto_pantalla.dart';
-import 'pantallas/banco_pantalla.dart';
-import 'pantallas/ahorro_pantalla.dart';
-import 'pantallas/adivina_pantalla.dart';
-import 'pantallas/intervalo_pantalla.dart';
+import 'views/pages/impuesto_pantalla.dart';
+import 'views/pages/banco_pantalla.dart';
+import 'views/pages/ahorro_pantalla.dart';
+import 'views/pages/adivina_pantalla.dart';
+import 'views/pages/intervalo_pantalla.dart';
 
 /// Datos de un ejercicio para mostrarlo en el menú y registrar su ruta.
 class EjercicioInfo {
